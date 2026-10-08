@@ -33,7 +33,15 @@ SKILL_KEYWORDS = {
 
     "Artificial Intelligence": [
         "artificial intelligence",
-        "ai",
+        "ai/ml",
+        "ai & ml",
+        "ai fundamentals",
+        "ai engineer",
+        "ai engineering",
+        "ai model",
+        "ai models",
+        "ai project",
+        "ai projects",
     ],
 
     "Data Analysis": [
@@ -98,6 +106,7 @@ SKILL_KEYWORDS = {
 SECTION_HEADINGS = {
     "objective": [
         "objective",
+        "career objective",
     ],
 
     "education": [
@@ -118,10 +127,35 @@ SECTION_HEADINGS = {
         "personal projects",
     ],
 
+    "experience": [
+        "experience",
+        "internship experience",
+        "work experience",
+        "professional experience",
+    ],
+
+    "certifications": [
+        "certifications",
+        "certificates",
+    ],
+
+    "achievements": [
+        "achievements",
+    ],
+
     "leadership": [
         "leadership & content creation",
         "leadership",
         "content creation",
+    ],
+
+    "extracurriculars": [
+        "extracurriculars",
+        "extracurricular activities",
+    ],
+
+    "languages": [
+        "languages",
     ],
 
     "additional_strengths": [
@@ -278,7 +312,10 @@ def find_skill_evidence(resume_text, skill):
 
                 break
 
-    # Remove duplicates.
+    # -----------------------------------------------------
+    # REMOVE DUPLICATES
+    # -----------------------------------------------------
+
     matched_sections = list(
         dict.fromkeys(matched_sections)
     )

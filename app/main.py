@@ -1,11 +1,4 @@
-from app.parser.resume_parser import extract_text
-from app.extraction.skills_extractor import extract_skills
-from app.extraction.skill_evidence import analyze_skill_evidence
-from app.improvement_plan import generate_improvement_plan
-from app.job.job_parser import analyze_job_description
-from app.matching.weighted_matcher import calculate_weighted_match
-from app.recommendations.recommendation_engine import generate_recommendations
-from app.recommendations.improvement_engine import generate_improvement_suggestions
+from app.screening.screening_engine import screen_candidate
 
 
 RESUME_PATH = "data/resumes/resume.pdf"
@@ -20,24 +13,37 @@ def run_screening():
     print("=" * 60)
 
     # ---------------------------------------------------------
-    # 1. RESUME
+    # RUN SCREENING ENGINE
+    # ---------------------------------------------------------
+
+    screening = screen_candidate(
+        RESUME_PATH,
+        JOB_DESCRIPTION_PATH
+    )
+
+    resume_skills = screening["resume_skills"]
+    evidence_results = screening["evidence_results"]
+    job_result = screening["job_result"]
+    result = screening["match_result"]
+    recommendations = screening["recommendations"]
+    improvement_suggestions = screening["improvement_suggestions"]
+    improvement_plans = screening["improvement_plans"]
+
+    # ---------------------------------------------------------
+    # RESUME
     # ---------------------------------------------------------
 
     print("\n[1] READING RESUME")
     print("-" * 60)
 
-    resume_text = extract_text(RESUME_PATH)
-
     print("Resume processed successfully! ✅")
 
     # ---------------------------------------------------------
-    # 2. RESUME SKILLS
+    # RESUME SKILLS
     # ---------------------------------------------------------
 
     print("\n[2] EXTRACTING RESUME SKILLS")
     print("-" * 60)
-
-    resume_skills = extract_skills(resume_text)
 
     print(f"Skills detected: {len(resume_skills)}")
 
@@ -45,16 +51,11 @@ def run_screening():
         print(f"  • {skill}")
 
     # ---------------------------------------------------------
-    # 2.5 SKILL EVIDENCE ANALYSIS
+    # SKILL EVIDENCE
     # ---------------------------------------------------------
 
     print("\n[2.5] ANALYZING SKILL EVIDENCE")
     print("-" * 60)
-
-    evidence_results = analyze_skill_evidence(
-        resume_text,
-        resume_skills
-    )
 
     for evidence in evidence_results:
 
@@ -66,54 +67,28 @@ def run_screening():
         )
 
     # ---------------------------------------------------------
-    # CREATE EVIDENCE LOOKUP
-    # ---------------------------------------------------------
-
-    evidence_lookup = {
-        evidence["skill"]: evidence
-        for evidence in evidence_results
-    }
-
-    # ---------------------------------------------------------
-    # 3. JOB DESCRIPTION
+    # JOB DESCRIPTION
     # ---------------------------------------------------------
 
     print("\n[3] ANALYZING JOB DESCRIPTION")
     print("-" * 60)
 
-    job_result = analyze_job_description(
-        JOB_DESCRIPTION_PATH
-    )
-
-    core_skills = job_result["core_skills"]
-    preferred_skills = job_result["preferred_skills"]
-
     print("\nCore Skills:")
 
-    for skill in core_skills:
+    for skill in job_result["core_skills"]:
         print(f"  • {skill}")
 
     print("\nPreferred Skills:")
 
-    for skill in preferred_skills:
+    for skill in job_result["preferred_skills"]:
         print(f"  • {skill}")
-
-    # ---------------------------------------------------------
-    # 4. MATCHING
-    # ---------------------------------------------------------
-
-    print("\n[4] CALCULATING WEIGHTED MATCH")
-    print("-" * 60)
-
-    result = calculate_weighted_match(
-        resume_skills=resume_skills,
-        core_skills=core_skills,
-        preferred_skills=preferred_skills,
-    )
 
     # ---------------------------------------------------------
     # MATCH RESULT
     # ---------------------------------------------------------
+
+    print("\n[4] CALCULATING WEIGHTED MATCH")
+    print("-" * 60)
 
     print("\n" + "=" * 60)
     print("                 MATCH RESULT")
@@ -138,7 +113,7 @@ def run_screening():
         print(f"  • {skill}")
 
     # ---------------------------------------------------------
-    # EXACT MATCHES WITH EVIDENCE
+    # EXACT MATCHES
     # ---------------------------------------------------------
 
     print("\nEXACT MATCHES")
@@ -153,10 +128,8 @@ def run_screening():
             f"+{match['points']} points"
         )
 
-        resume_skill = match["resume_skill"]
-
-        evidence = evidence_lookup.get(
-            resume_skill
+        evidence = screening["evidence_lookup"].get(
+            match["resume_skill"]
         )
 
         if evidence:
@@ -193,29 +166,6 @@ def run_screening():
                 f"({match['category']}) "
                 f"+{match['points']} points"
             )
-
-            resume_skill = match["resume_skill"]
-
-            evidence = evidence_lookup.get(
-                resume_skill
-            )
-
-            if evidence:
-
-                sections = ", ".join(
-                    evidence["sections"]
-                )
-
-                print(
-                    f"   Evidence: "
-                    f"{evidence['evidence_strength']} | "
-                    f"Confidence: "
-                    f"{evidence['confidence']}"
-                )
-
-                print(
-                    f"   Sections: {sections}"
-                )
 
     else:
 
@@ -260,37 +210,20 @@ def run_screening():
         if skill["category"] == "preferred"
     ]
 
-    if core_gaps:
+    print("\nHIGH PRIORITY — CORE")
 
-        print("\nHIGH PRIORITY — CORE")
+    if core_gaps:
 
         for skill in core_gaps:
             print(f"  ❌ {skill['job_skill']}")
 
     else:
 
-        print("\nHIGH PRIORITY — CORE")
         print("  None 🎉")
-
-    # ---------------------------------------------------------
-    # MATCH EXPLANATION & RECOMMENDATIONS
-    # ---------------------------------------------------------
-
-    recommendations = generate_recommendations(
-    result,
-    evidence_lookup
-)
-
-    print("\nMATCH EXPLANATION & RECOMMENDATIONS")
-    print("-" * 60)
 
     # ---------------------------------------------------------
     # RESUME IMPROVEMENT SUGGESTIONS
     # ---------------------------------------------------------
-
-    improvement_suggestions = generate_improvement_suggestions(
-        result["missing_skills"]
-    )
 
     print("\nRESUME IMPROVEMENT SUGGESTIONS")
     print("-" * 60)
@@ -302,24 +235,10 @@ def run_screening():
             start=1
         ):
 
-            print(
-                f"\n{index}. {suggestion['skill']}"
-            )
-
-            print(
-                f"   Priority: "
-                f"{suggestion['priority']}"
-            )
-
-            print(
-                f"   Reason: "
-                f"{suggestion['reason']}"
-            )
-
-            print(
-                f"   Action: "
-                f"{suggestion['action']}"
-            )
+            print(f"\n{index}. {suggestion['skill']}")
+            print(f"   Priority: {suggestion['priority']}")
+            print(f"   Reason: {suggestion['reason']}")
+            print(f"   Action: {suggestion['action']}")
 
     else:
 
@@ -329,10 +248,6 @@ def run_screening():
     # RESUME IMPROVEMENT PLAN
     # ---------------------------------------------------------
 
-    improvement_plans = generate_improvement_plan(
-    result["missing_skills"]
-)
-
     print("\nRESUME IMPROVEMENT PLAN")
     print("-" * 60)
 
@@ -341,27 +256,13 @@ def run_screening():
         start=1
     ):
 
-        print(
-            f"\n{index}. {plan['skill']}"
-        )
-
-        print(
-            f"   Priority: "
-            f"{plan['priority']}"
-        )
-
-        print(
-            f"   Gap: "
-            f"{plan['gap']}"
-        )
-
+        print(f"\n{index}. {plan['skill']}")
+        print(f"   Priority: {plan['priority']}")
+        print(f"   Gap: {plan['gap']}")
         print("   Action Plan:")
 
         for action in plan["actions"]:
-
-            print(
-                f"   • {action}"
-            )
+            print(f"   • {action}")
 
     # ---------------------------------------------------------
     # STRONG AREAS
@@ -437,19 +338,15 @@ def run_screening():
     # PREFERRED GAPS
     # ---------------------------------------------------------
 
+    print("\nOPTIONAL — PREFERRED")
+
     if preferred_gaps:
 
-        print("\nOPTIONAL — PREFERRED")
-
         for skill in preferred_gaps:
-
-            print(
-                f"  ❌ {skill['job_skill']}"
-            )
+            print(f"  ❌ {skill['job_skill']}")
 
     else:
 
-        print("\nOPTIONAL — PREFERRED")
         print("  None 🎉")
 
     # ---------------------------------------------------------
