@@ -2,41 +2,14 @@ from app.improvement_plan import generate_improvement_plan
 
 
 missing_skills = [
-    "SQL",
-    "NLP",
-    "Pandas",
-    "NumPy",
-    "Scikit-learn",
-    "Git",
-    "Deep Learning"
-]
-
-core_skills = [
-    "Python",
-    "SQL",
-    "Machine Learning",
-    "Data Analysis",
-    "Exploratory Data Analysis",
-    "NLP",
-    "Pandas",
-    "NumPy",
-    "Scikit-learn",
-    "Git",
-    "GitHub"
-]
-
-preferred_skills = [
-    "Deep Learning",
-    "Artificial Intelligence",
-    "Predictive Modeling"
+    {
+        "job_skill": "Predictive Modeling",
+        "category": "preferred"
+    }
 ]
 
 
-plans = generate_improvement_plan(
-    missing_skills,
-    core_skills,
-    preferred_skills
-)
+plans = generate_improvement_plan(missing_skills)
 
 
 print("=" * 60)
