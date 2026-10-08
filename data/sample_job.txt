@@ -1,0 +1,17 @@
+AI/ML Intern
+
+We are looking for an AI/ML intern with strong knowledge of Python,
+Machine Learning, Deep Learning, SQL, Pandas, NumPy, TensorFlow,
+Git, Data Analysis and Natural Language Processing.
+
+Requirements:
+- Python programming
+- Machine Learning
+- Deep Learning
+- SQL
+- Pandas
+- NumPy
+- TensorFlow
+- Git
+- Data Analysis
+- Natural Language Processing

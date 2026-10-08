@@ -1,0 +1,30 @@
+AI/ML Intern
+
+We are looking for an AI/ML Intern to join our team.
+
+Requirements:
+
+- Python programming
+- Machine Learning
+- Pandas
+- NumPy
+- SQL
+- Scikit-learn
+- Natural Language Processing (NLP)
+- Git and GitHub
+- Data Analysis
+- Exploratory Data Analysis
+
+Preferred Skills:
+
+- Deep Learning
+- Artificial Intelligence
+- Predictive Modeling
+
+Responsibilities:
+
+- Build machine learning models.
+- Perform data analysis and preprocessing.
+- Work with Python and machine learning libraries.
+- Analyze datasets and generate insights.
+- Collaborate with the development team.
