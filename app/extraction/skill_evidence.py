@@ -34,6 +34,7 @@ SKILL_KEYWORDS = {
     "Artificial Intelligence": [
         "artificial intelligence",
         "ai/ml",
+        "ml/ai",
         "ai & ml",
         "ai fundamentals",
         "ai engineer",
@@ -48,6 +49,8 @@ SKILL_KEYWORDS = {
         "data analysis",
         "data analytics",
         "data analysis project",
+        "exploratory data analysis",
+        "eda",
     ],
 
     "Exploratory Data Analysis": [

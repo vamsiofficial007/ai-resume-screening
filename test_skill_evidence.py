@@ -83,3 +83,42 @@ def test_multiple_skill_evidence():
 
     assert results[2]["skill"] == "TensorFlow"
     assert results[2]["status"] == "Missing"
+
+
+def test_artificial_intelligence_recognizes_ml_ai_in_skills():
+    resume_text = """
+    TECHNICAL SKILLS
+
+    ML/AI: Scikit-learn, TensorFlow, PyTorch
+    """
+
+    result = find_skill_evidence(
+        resume_text,
+        "Artificial Intelligence",
+    )
+
+    assert result["status"] == "Evidence Found"
+    assert result["confidence"] == "Medium"
+    assert result["evidence_strength"] == "Skills Section"
+    assert "skills" in result["sections"]
+    assert "ml/ai" in result["matched_keywords"]
+
+
+def test_data_analysis_recognizes_eda_in_projects():
+    resume_text = """
+    PROJECTS
+
+    Customer Churn Prediction
+    Performed EDA and feature engineering on telecom data.
+    """
+
+    result = find_skill_evidence(
+        resume_text,
+        "Data Analysis",
+    )
+
+    assert result["status"] == "Evidence Found"
+    assert result["confidence"] == "Very High"
+    assert result["evidence_strength"] == "Project"
+    assert "projects" in result["sections"]
+    assert "eda" in result["matched_keywords"]
