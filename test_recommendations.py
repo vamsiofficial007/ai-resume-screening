@@ -177,3 +177,45 @@ def test_assessment_for_low_score():
     )
 
     assert "limited match" in result["overall_assessment"]
+
+
+def test_assessment_at_40_percent():
+    result = generate_recommendations(
+        {
+            "exact_matches": [],
+            "related_matches": [],
+            "missing_skills": [],
+            "score": 40.0,
+        },
+        {},
+    )
+
+    assert "good foundation" in result["overall_assessment"]
+
+
+def test_assessment_at_60_percent():
+    result = generate_recommendations(
+        {
+            "exact_matches": [],
+            "related_matches": [],
+            "missing_skills": [],
+            "score": 60.0,
+        },
+        {},
+    )
+
+    assert "good match" in result["overall_assessment"]
+
+
+def test_assessment_at_80_percent():
+    result = generate_recommendations(
+        {
+            "exact_matches": [],
+            "related_matches": [],
+            "missing_skills": [],
+            "score": 80.0,
+        },
+        {},
+    )
+
+    assert "strong match" in result["overall_assessment"]
