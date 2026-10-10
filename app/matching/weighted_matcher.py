@@ -8,6 +8,20 @@ EXACT_CREDIT = 1.0
 RELATED_CREDIT = 0.5
 MISSING_CREDIT = 0.0
 
+def _unique_skills_case_insensitive(skills: list[str]) -> list[str]:
+    """Remove duplicate skills while preserving order and first spelling."""
+    unique_skills = []
+    seen = set()
+
+    for skill in skills:
+        normalized_skill = skill.casefold()
+
+        if normalized_skill not in seen:
+            unique_skills.append(skill)
+            seen.add(normalized_skill)
+
+    return unique_skills
+
 
 # Known related-skill relationships.
 # This is intentionally simple for now.
@@ -83,6 +97,15 @@ def calculate_weighted_match(
     # Keep track of resume skills that have already
     # been used for a match.
     used_resume_skills = set()
+
+    core_skills = _unique_skills_case_insensitive(core_skills)
+    preferred_skills = _unique_skills_case_insensitive(preferred_skills)
+
+    core_skill_names = {skill.casefold() for skill in core_skills}
+    preferred_skills = [
+        skill for skill in preferred_skills
+        if skill.casefold() not in core_skill_names
+    ]
 
     # ---------------------------------------------------------
     # RESERVE RESUME SKILLS FOR EXACT MATCHES
