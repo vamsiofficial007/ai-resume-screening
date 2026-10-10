@@ -278,7 +278,7 @@ def find_skill_evidence(resume_text, skill):
         return {
             "skill": skill,
             "status": "Missing",
-            "confidence": "High",
+            "confidence": "None",
             "evidence_strength": "None",
             "sections": [],
             "matched_keywords": [],

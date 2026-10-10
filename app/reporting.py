@@ -39,11 +39,14 @@ def generate_screening_report(screening: dict) -> dict:
     }
 
     for evidence in screening["evidence_results"]:
-
-        confidence = evidence["confidence"].lower()
+        confidence = (
+            evidence["confidence"]
+            .strip()
+            .lower()
+            .replace(" ", "_")
+        )
 
         if confidence in evidence_summary:
-
             evidence_summary[confidence].append(
                 evidence["skill"]
             )
@@ -112,4 +115,3 @@ def generate_screening_report(screening: dict) -> dict:
             ],
         },
     }
-

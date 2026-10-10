@@ -55,7 +55,7 @@ def test_missing_skill():
     )
 
     assert result["status"] == "Missing"
-    assert result["confidence"] == "High"
+    assert result["confidence"] == "None"
     assert result["evidence_strength"] == "None"
     assert result["sections"] == []
     assert result["matched_keywords"] == []

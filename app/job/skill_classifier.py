@@ -38,7 +38,6 @@ def find_section_position(text: str, keywords: list[str]):
     """
     Find the earliest occurrence of any section keyword.
     """
-
     positions = []
 
     for keyword in keywords:
@@ -53,12 +52,31 @@ def find_section_position(text: str, keywords: list[str]):
     return min(positions)
 
 
+def remove_duplicates_case_insensitive(skills: list[str]) -> list[str]:
+    """
+    Remove duplicate skills without considering letter case.
+    Preserve the spelling and order of the first occurrence.
+    """
+    unique_skills = []
+    seen = set()
+
+    for skill in skills:
+        normalized_skill = skill.casefold()
+
+        if normalized_skill not in seen:
+            unique_skills.append(skill)
+            seen.add(normalized_skill)
+
+    return unique_skills
+
+
 def classify_job_skills(job_text: str, extracted_skills: list[str]) -> dict:
     """
-    Classify extracted job skills into core and preferred skills.
+    Classify extracted job skills into core or preferred categories.
+    Core skills take priority over preferred skills.
+    Duplicate skills are removed case-insensitively.
     """
-
-    text_lower = job_text.lower()
+    text_lower = job_text.casefold()
 
     core_skills = []
     preferred_skills = []
@@ -68,7 +86,7 @@ def classify_job_skills(job_text: str, extracted_skills: list[str]) -> dict:
         PREFERRED_SECTION_KEYWORDS
     )
 
-    # Find where another section begins after Preferred Skills
+    # Find where another section begins after Preferred Skills.
     other_section_positions = []
 
     for keyword in OTHER_SECTION_KEYWORDS:
@@ -86,39 +104,37 @@ def classify_job_skills(job_text: str, extracted_skills: list[str]) -> dict:
     else:
         preferred_end = len(text_lower)
 
-    # ---------------------------------------------------------
-    # Classify every extracted skill
-    # ---------------------------------------------------------
-
+    # Classify every extracted skill.
     for skill in extracted_skills:
-
-        skill_lower = skill.lower()
-
+        skill_lower = skill.casefold()
         skill_position = text_lower.find(skill_lower)
 
         if skill_position == -1:
             core_skills.append(skill)
             continue
 
-        # Skill is inside Preferred section
+        # Check whether the skill occurs inside the Preferred section.
         if (
             preferred_position is not None
             and preferred_position < skill_position < preferred_end
         ):
             preferred_skills.append(skill)
-
         else:
             core_skills.append(skill)
 
-    # Remove duplicates
-    core_skills = list(dict.fromkeys(core_skills))
-    preferred_skills = list(dict.fromkeys(preferred_skills))
+    # Remove duplicates from each category, ignoring letter case.
+    core_skills = remove_duplicates_case_insensitive(core_skills)
+    preferred_skills = remove_duplicates_case_insensitive(preferred_skills)
 
-    # Core always has priority
+    # Core always has priority, ignoring letter case.
+    core_skill_names = {
+        skill.casefold() for skill in core_skills
+    }
+
     preferred_skills = [
         skill
         for skill in preferred_skills
-        if skill not in core_skills
+        if skill.casefold() not in core_skill_names
     ]
 
     return {
