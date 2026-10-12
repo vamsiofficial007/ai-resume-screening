@@ -21,7 +21,7 @@ def test_generate_screening_report():
     # CANDIDATE
     # ---------------------------------------------------------
 
-    assert report["candidate"]["skills_detected"] == 18
+    assert report["candidate"]["skills_detected"] == 22
 
     # ---------------------------------------------------------
     # MATCH

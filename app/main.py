@@ -1,210 +1,198 @@
+
+import streamlit as st
+import tempfile
+from pathlib import Path
+
 from app.screening.screening_engine import screen_candidate
 from app.reporting import generate_screening_report
 
 
-RESUME_PATH = "data/resumes/resume.pdf"
-JOB_DESCRIPTION_PATH = "data/job_descriptions/ai_ml_intern.txt"
+st.set_page_config(
+    page_title="AI Resume Screening System",
+    page_icon="📄",
+    layout="wide",
+)
 
+st.title("📄 AI Resume Screening System")
+st.write(
+    "Upload a resume and a job description to analyze "
+    "skill compatibility, identify gaps, and get recommendations."
+)
 
-def print_screening_report(report: dict):
-    """
-    Display the recruiter-friendly screening report.
-    """
+st.divider()
 
-    print("\n" + "=" * 60)
-    print("              SCREENING REPORT")
-    print("=" * 60)
+resume_file = st.file_uploader(
+    "Upload your resume",
+    type=["pdf", "docx"],
+)
 
-    print("\nCANDIDATE")
-    print("-" * 60)
+job_description = st.text_area(
+    "Paste the job description",
+    height=250,
+    placeholder=(
+        "Paste the job title, required skills, "
+        "preferred skills, and responsibilities here..."
+    ),
+)
 
-    print(
-        f"Skills Detected: "
-        f"{report['candidate']['skills_detected']}"
-    )
-
-    print("\nMATCH SCORE")
-    print("-" * 60)
-
-    print(
-        f"Weighted Match: "
-        f"{report['match']['score']}%"
-    )
-
-    print(
-        f"Points: "
-        f"{report['match']['earned_points']} / "
-        f"{report['match']['total_possible_points']}"
-    )
-
-    print("\nREQUIREMENTS")
-    print("-" * 60)
-
-    core = report["requirements"]["core"]
-    preferred = report["requirements"]["preferred"]
-
-    print(
-        f"Core: "
-        f"{core['matched']} / "
-        f"{core['total']} matched"
-    )
-
-    print(
-        f"Preferred: "
-        f"{preferred['matched']} / "
-        f"{preferred['total']} matched"
-    )
-
-    print("\nSKILL GAPS")
-    print("-" * 60)
-
-    all_missing = (
-        core["missing"]
-        + preferred["missing"]
-    )
-
-    if all_missing:
-        for skill in all_missing:
-            print(f"  ❌ {skill}")
+if st.button("Analyze Resume", type="primary"):
+    if resume_file is None:
+        st.error("Please upload a PDF or DOCX resume.")
+    elif not job_description.strip():
+        st.error("Please paste a job description.")
     else:
-        print("  None 🎉")
+        try:
+            with st.spinner("Analyzing your resume..."):
+                suffix = Path(resume_file.name).suffix.lower()
 
-    print("\nSTRENGTHS")
-    print("-" * 60)
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    resume_path = Path(temp_dir) / (
+                        "resume" + suffix
+                    )
+                    job_path = Path(temp_dir) / "job_description.txt"
 
-    strong_areas = report["strengths"]["strong_areas"]
+                    resume_path.write_bytes(
+                        resume_file.getvalue()
+                    )
+                    job_path.write_text(
+                        job_description,
+                        encoding="utf-8",
+                    )
 
-    if strong_areas:
-        for skill in strong_areas:
-            print(f"  ✅ {skill}")
-    else:
-        print("  None")
+                    screening = screen_candidate(
+                        str(resume_path),
+                        str(job_path),
+                    )
 
-    supported_areas = report["strengths"]["supported_areas"]
+                    report = generate_screening_report(
+                        screening
+                    )
 
-    if supported_areas:
-        print("\nSupported Areas:")
+            st.success("Screening completed successfully!")
 
-        for skill in supported_areas:
-            print(f"  • {skill}")
+            st.header("Screening Results")
 
-    related_areas = report["strengths"]["related_areas"]
+            score = report["match"]["score"]
+            core = report["requirements"]["core"]
+            preferred = report["requirements"]["preferred"]
 
-    if related_areas:
-        print("\nRelated Areas:")
+            col1, col2, col3, col4 = st.columns(4)
 
-        for skill in related_areas:
-            print(f"  🔗 {skill}")
-
-    print("\nEVIDENCE CONFIDENCE")
-    print("-" * 60)
-
-    evidence = report["evidence"]
-
-    confidence_levels = [
-        "very_high",
-        "high",
-        "medium",
-        "low",
-    ]
-
-    for confidence in confidence_levels:
-        if evidence[confidence]:
-
-            print(
-                f"\n{confidence.replace('_', ' ').title()}:"
+            col1.metric("Weighted Match", f"{score}%")
+            col2.metric(
+                "Skills Detected",
+                report["candidate"]["skills_detected"],
+            )
+            col3.metric(
+                "Core Skills Matched",
+                f'{core["matched"]} / {core["total"]}',
+            )
+            col4.metric(
+                "Preferred Skills Matched",
+                f'{preferred["matched"]} / {preferred["total"]}',
             )
 
-            for skill in evidence[confidence]:
-                print(f"  • {skill}")
-
-    print("\nRECOMMENDATIONS")
-    print("-" * 60)
-
-    priority_skills = (
-        report["recommendations"]["priority_skills"]
-    )
-
-    if priority_skills:
-        print("Priority Skills:")
-
-        for skill in priority_skills:
-            print(f"  • {skill}")
-    else:
-        print("Priority Skills: None 🎉")
-
-    optional_skills = (
-        report["recommendations"]["optional_skills"]
-    )
-
-    if optional_skills:
-        print("\nOptional Skills:")
-
-        for skill in optional_skills:
-            print(f"  • {skill}")
-
-    print("\nOverall Assessment:")
-
-    print(
-        f"  {report['recommendations']['overall_assessment']}"
-    )
-
-    print("\nIMPROVEMENT PLAN")
-    print("-" * 60)
-
-    plans = report["improvement"]["plans"]
-
-    if plans:
-
-        for index, plan in enumerate(
-            plans,
-            start=1
-        ):
-
-            print(
-                f"\n{index}. {plan['skill']}"
+            st.progress(
+                max(0.0, min(1.0, float(score) / 100))
             )
 
-            print(
-                f"   Priority: {plan['priority']}"
+            st.subheader("Skill Gaps")
+
+            gap_col1, gap_col2 = st.columns(2)
+
+            with gap_col1:
+                st.markdown("**Missing Core Skills**")
+                if core["missing"]:
+                    for skill in core["missing"]:
+                        st.write(f"❌ {skill}")
+                else:
+                    st.success("No missing core skills!")
+
+            with gap_col2:
+                st.markdown("**Missing Preferred Skills**")
+                if preferred["missing"]:
+                    for skill in preferred["missing"]:
+                        st.write(f"▫️ {skill}")
+                else:
+                    st.success("No missing preferred skills!")
+
+            st.subheader("Strengths")
+
+            strengths = report["strengths"]
+
+            st.markdown("**Strong Areas**")
+            if strengths["strong_areas"]:
+                st.write(", ".join(strengths["strong_areas"]))
+            else:
+                st.write("No strong areas identified yet.")
+
+            st.markdown("**Supported Areas**")
+            if strengths["supported_areas"]:
+                st.write(", ".join(strengths["supported_areas"]))
+            else:
+                st.write("No additional supported areas identified.")
+
+            st.markdown("**Related Areas**")
+            if strengths["related_areas"]:
+                st.write(", ".join(strengths["related_areas"]))
+            else:
+                st.write("No related areas identified.")
+
+            st.subheader("Evidence Confidence")
+
+            evidence = report["evidence"]
+
+            for level, skills in evidence.items():
+                with st.expander(
+                    f"{level.replace('_', ' ').title()} ({len(skills)})"
+                ):
+                    if skills:
+                        st.write(", ".join(skills))
+                    else:
+                        st.write("No skills in this category.")
+
+            st.subheader("Recommendations")
+
+            recommendations = report["recommendations"]
+
+            st.markdown("**Priority Skills**")
+            if recommendations["priority_skills"]:
+                for skill in recommendations["priority_skills"]:
+                    st.write(f"🔴 {skill}")
+            else:
+                st.success("No priority skills identified.")
+
+            st.markdown("**Optional Skills**")
+            if recommendations["optional_skills"]:
+                for skill in recommendations["optional_skills"]:
+                    st.write(f"▫️ {skill}")
+            else:
+                st.write("No optional skill recommendations.")
+
+            st.info(recommendations["overall_assessment"])
+
+            st.subheader("Improvement Plan")
+
+            plans = report["improvement"]["plans"]
+
+            if plans:
+                for index, plan in enumerate(plans, start=1):
+                    with st.expander(
+                        f'{index}. {plan["skill"]} — {plan["priority"]}'
+                    ):
+                        st.write(f'**Gap:** {plan["gap"]}')
+                        st.write("**Action Plan**")
+                        for action in plan["actions"]:
+                            st.write(f"- {action}")
+            else:
+                st.success("No improvement plan required.")
+
+            with st.expander("View detected resume skills"):
+                st.write(", ".join(screening["resume_skills"]))
+
+        except Exception as exc:
+            st.error(
+                "Screening failed. Please check the uploaded "
+                "resume and job description."
             )
-
-            print(
-                f"   Gap: {plan['gap']}"
-            )
-
-            print("   Action Plan:")
-
-            for action in plan["actions"]:
-                print(f"   • {action}")
-
-    else:
-        print("  No improvement plan required.")
-
-    print("\n" + "=" * 60)
-    print("                 SCREENING COMPLETE")
-    print("=" * 60)
-
-
-def run_screening():
-
-    print("\n" + "=" * 60)
-    print("          AI RESUME SCREENING SYSTEM")
-    print("=" * 60)
-
-    screening = screen_candidate(
-        RESUME_PATH,
-        JOB_DESCRIPTION_PATH
-    )
-
-    report = generate_screening_report(
-        screening
-    )
-
-    print_screening_report(
-        report
-    )
-
-
-if __name__ == "__main__":
-    run_screening()
+            st.exception(exc)

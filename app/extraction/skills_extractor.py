@@ -68,6 +68,54 @@ SKILLS_DATABASE = {
     "GitHub": [
         "github",
     ],
+
+    "Mobile App Development": [
+        "mobile app development",
+        "mobile application development",
+    ],
+    "Firebase": [
+        "firebase",
+    ],
+
+    "UI Design": [
+        "ui design",
+        "user interface design",
+        "ui development",
+        "user interface development",
+    ],
+
+    "Responsive Design": [
+        "responsive design",
+    ],
+
+    "API Integration": [
+        "api integration",
+    ],
+    "REST API": [
+        "rest api",
+        "restful api",
+    ],
+    "REST API Integration": [
+        "rest api integration",
+        "restful api integration",
+    ],
+    "Debugging": [
+        "debugging",
+        "debug",
+    ],
+
+    "Android Development": [
+        "android development",
+        "android app development",
+    ],
+    "iOS Development": [
+        "ios development",
+        "ios app development",
+    ],
+    "State Management": [
+        "state management",
+    ],
+
     "FastAPI": [
         "fastapi",
     ],
@@ -87,6 +135,49 @@ SKILLS_DATABASE = {
     "Vector Database": [
         "vector database",
         "vector databases",
+    ],
+
+    "HTML": [
+        "html",
+    ],
+    "CSS": [
+        "css",
+    ],
+    "JavaScript": [
+        "javascript",
+    ],
+    "React": [
+        "react",
+    ],
+    "Frontend Development": [
+        "frontend development",
+        "front-end development",
+    ],
+    "Backend Development": [
+        "backend development",
+        "back-end development",
+    ],
+    "Node.js": [
+        "node.js",
+        "node js",
+    ],
+    "Express.js": [
+        "express.js",
+        "express js",
+    ],
+    "MongoDB": [
+        "mongodb",
+        "mongo db",
+    ],
+    "TypeScript": [
+        "typescript",
+    ],
+    "Docker": [
+        "docker",
+    ],
+    "Problem Solving": [
+        "problem solving",
+        "problem-solving",
     ],
 }
 

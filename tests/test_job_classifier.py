@@ -58,3 +58,46 @@ def test_core_skill_takes_priority_over_preferred_case_insensitively():
         for skill in result["preferred_skills"]
     )
     assert result["core_count"] == 1
+
+def test_responsibility_skills_are_not_classified_as_core():
+    result = classify_job_skills(
+        "Responsibilities:\n"
+        "- Build apps using Flutter and Dart.\n"
+        "- Integrate REST API services.",
+        ["Flutter", "Dart", "REST API"]
+    )
+
+    assert result["core_skills"] == []
+    assert result["preferred_skills"] == []
+
+
+def test_qualification_skills_are_not_classified_as_core():
+    result = classify_job_skills(
+        "Qualifications:\n"
+        "- Familiarity with Python and SQL.",
+        ["Python", "SQL"]
+    )
+
+    assert result["core_skills"] == []
+    assert result["preferred_skills"] == []
+
+def test_problem_solving_is_extracted_and_classified_as_preferred():
+    from app.extraction.skills_extractor import extract_skills
+
+    job_description = (
+        "Required Skills:\n"
+        "- Flutter\n"
+        "Preferred Skills:\n"
+        "- Problem Solving\n"
+    )
+
+    extracted_skills = extract_skills(job_description)
+
+    result = classify_job_skills(
+        job_description,
+        extracted_skills,
+    )
+
+    assert "Problem Solving" in extracted_skills
+    assert "Problem Solving" in result["preferred_skills"]
+    assert result["preferred_count"] == 1
