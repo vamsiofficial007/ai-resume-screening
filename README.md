@@ -575,13 +575,13 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Run the screening system
+### 4. Launch the Streamlit dashboard
 
 ```bash
-python -m app.main
+export PYTHONPATH="$(pwd)" && python -m streamlit run app/main.py
 ```
 
-The system will analyze the configured resume and job description and display the final screening report.
+Open the local URL displayed in Terminal to use the web dashboard. Upload a PDF or DOCX resume, paste a job description, and click **Analyze Resume** to view the screening results.
 
 ---
 
@@ -598,13 +598,13 @@ pytest
 The current test suite contains:
 
 ```text
-18 tests
+42 tests
 ```
 
 A successful run should report:
 
 ```text
-18 passed
+42 passed
 ```
 
 The tests cover areas including:
@@ -698,7 +698,7 @@ The current implementation includes:
 Current validation:
 
 ```text
-18 tests passed
+42 tests passed
 ```
 
 ---
@@ -710,8 +710,6 @@ Potential future extensions include:
 * Semantic skill matching using embeddings
 * Machine-learning-based resume classification
 * LLM-powered resume feedback
-* Web interface
-* Streamlit dashboard
 * Resume ranking across multiple candidates
 * Job recommendation based on candidate skills
 * Vector database integration
@@ -738,5 +736,7 @@ Its recommendations are designed as decision-support information and should not 
 
 AI/ML Student | Data Analysis | Predictive Modeling
 
-GitHub: Add your GitHub profile link
+GitHub: https://github.com/vamsiofficial007
+
+Project Repository: https://github.com/vamsiofficial007/ai-resume-screening
 
